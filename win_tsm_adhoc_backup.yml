@@ -1,0 +1,27 @@
+---
+- name: 'Including Role for Socks Tunel'
+  hosts: localhost
+  ignore_errors: true
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Role ensures that the socks tunnel is setup
+      import_role:
+        name: ansible-role-event-socks-tunnel
+      vars:
+        acc_id: "{{ blueid_shortcode }}"
+        transaction_id: "{{ tower_job_id }}"
+      when: not (skip_socks | d(false))
+
+- name: To run the Spectrum Protect Windows Adhoc Backups
+  hosts: all
+  gather_facts: false
+  become: yes
+  become_method: runas
+  tasks:
+    - name: To run adhoc backup
+      win_shell: |
+        Set-Location "C:\Program Files\Tivoli\TSM\baclient"
+          $formattedDate = Get-Date -Format "dd-MM-yyyy_HH-mm"
+          $command = ./dsmc incr > "C:\Program Files\Tivoli\TSM\baclient\tsm_ansible_adhoc_backup_$formattedDate.txt"
+          Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command $command" -Verb RunAs -WindowStyle Hidden

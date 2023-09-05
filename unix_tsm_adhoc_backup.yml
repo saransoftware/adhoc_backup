@@ -1,0 +1,12 @@
+---
+- name: To run the Spectrum Protect Unix Adhoc Backups
+  hosts: all
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: Get the Date from the OS side
+      shell: (date +'%Y-%m-%d_%H-%M')
+      register: osdate
+
+    - name: To run adhoc backup
+      shell: "dsmc incr > /tmp/tsm_ansible_adhoc_backup_{{ osdate.stdout }} &"
